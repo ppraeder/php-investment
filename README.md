@@ -72,15 +72,28 @@ Webhosting M unterstützt SFTP/FTPS, aber keinen interaktiven SSH-Login. Das Dep
 
 ### 1. Hetzner vorbereiten
 
-1. In konsoleH das Webhosting-Paket und anschließend den Hosting-Namen auswählen.
-2. Unter `Einstellungen` → `Zugangsdaten` einen **zusätzlichen FTP-Benutzer** anlegen.
-3. Dessen Zugriff auf `public_html` beziehungsweise das ausschließlich für diese Website verwendete Unterverzeichnis begrenzen.
-4. Ein langes, zufälliges Passwort erzeugen und sicher verwahren. Nicht im Repository oder in einer lokalen Datei speichern.
-5. Servername, Benutzername und SFTP-Port 22 notieren.
-6. Die SFTP-Verbindung einmal lokal testen und den angezeigten Host-Fingerprint prüfen. Anschließend den bestätigten `known_hosts`-Eintrag für GitHub bereithalten.
-7. Domain auf das Zielverzeichnis zeigen lassen, Let's Encrypt aktivieren und HTTPS-Weiterleitung einschalten.
+Auf diesem Webhosting liegen zwei unabhängige Websites. Die Verzeichnisstruktur soll deshalb so aussehen:
 
-Für einen zusätzlichen FTP-Benutzer, dessen Wurzel bereits das Website-Verzeichnis ist, lautet das Remote-Verzeichnis normalerweise `/`. Wird ausnahmsweise der Hauptbenutzer verwendet, muss der korrekte Pfad – häufig `/public_html` – vorher mit einem SFTP-Client geprüft werden. Der zusätzliche, eingeschränkte Benutzer ist zu bevorzugen.
+```text
+public_html/
+├── php-investment.de/
+└── steinpilot.de/
+```
+
+1. In konsoleH das Webhosting-Paket auswählen und beide Domains dem Paket hinzufügen.
+2. Unter `Services` → `WebFTP` die Verzeichnisse `public_html/php-investment.de` und `public_html/steinpilot.de` anlegen.
+3. Für `php-investment.de` als Document Root `public_html/php-investment.de` auswählen.
+4. Für `steinpilot.de` als Document Root `public_html/steinpilot.de` auswählen.
+5. Unter `Einstellungen` → `Zugangsdaten` zwei **zusätzliche FTP-Benutzer** anlegen:
+   - Benutzer A erhält ausschließlich Zugriff auf `public_html/php-investment.de`.
+   - Benutzer B erhält ausschließlich Zugriff auf `public_html/steinpilot.de`.
+6. Für beide Benutzer unterschiedliche, lange Zufallspasswörter verwenden und sicher verwahren. Nicht im Repository oder in lokalen Projektdateien speichern.
+7. Servername, Benutzernamen und SFTP-Port 22 notieren.
+8. Beide SFTP-Verbindungen separat testen. Jeder Benutzer darf nach dem Login nur den Inhalt seiner eigenen Website sehen.
+9. Den angezeigten Host-Fingerprint prüfen und anschließend den bestätigten `known_hosts`-Eintrag für GitHub bereithalten.
+10. Für beide Domains jeweils Let's Encrypt aktivieren und die HTTPS-Weiterleitung einschalten.
+
+Da der zusätzliche Benutzer für dieses Repository bereits auf `public_html/php-investment.de` begrenzt wird, lautet `HETZNER_REMOTE_DIR` in GitHub `/`. Für Steinpilot werden in dessen eigenem Repository separate Secrets mit dem zweiten Benutzernamen und Passwort hinterlegt. Die Zugangsdaten dürfen nicht zwischen den Repositories wiederverwendet werden.
 
 ### 2. GitHub-Zugangsdaten anlegen
 
