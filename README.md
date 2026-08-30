@@ -56,7 +56,7 @@ python3 scripts/check_site.py
 
 1. Finale Domain in der Hetzner-Verwaltung dem Webhosting-Paket zuordnen.
 2. HTTPS-Zertifikat (Let's Encrypt, soweit im gebuchten Produkt verfügbar) aktivieren und die HTTPS-Weiterleitung in den Hosting-Einstellungen einschalten.
-3. In `index.html`, `impressum.html`, `datenschutz.html`, `robots.txt` und `sitemap.xml` die Platzhalter-Domain `www.example.invalid` durch die finale Domain ersetzen.
+3. Prüfen, dass `php-investment.de` in `index.html`, `impressum.html`, `datenschutz.html`, `robots.txt` und `sitemap.xml` als Produktionsdomain eingetragen ist.
 4. Firmen- und Rechtsangaben vervollständigen; alle gelb markierten Platzhalter und `TODO`-Kommentare prüfen.
 5. Die Produktionsdateien per SFTP/FTP in den konfigurierten Document Root hochladen: `index.html`, `impressum.html`, `datenschutz.html`, `assets/`, `favicon.svg`, `robots.txt`, `sitemap.xml` und `.htaccess`.
 6. Auf dem Zielsystem Startseite, interne Links, Impressum, Datenschutz und Darstellung auf Mobilgeräten testen.
@@ -111,7 +111,7 @@ Unter `Variables` zusätzlich folgende Repository-Variablen anlegen:
 | Name | Inhalt |
 | --- | --- |
 | `HETZNER_REMOTE_DIR` | normalerweise `/` beim eingeschränkten zusätzlichen Benutzer |
-| `PRODUCTION_URL` | finale HTTPS-URL, z. B. `https://www.example.de/` |
+| `PRODUCTION_URL` | `https://php-investment.de/` |
 
 Optional kann unter `Settings` → `Environments` zusätzlich ein Environment namens `production` mit erlaubten Deployment-Branches oder manueller Freigabe eingerichtet werden. Welche Schutzregeln verfügbar sind, hängt vom GitHub-Tarif und der Sichtbarkeit des Repositories ab.
 
@@ -138,7 +138,6 @@ Erst nach einem erfolgreichen manuellen Deployment sollte der Workflow optional 
 - `[VOLLSTÄNDIGER NAME DES GESCHÄFTSFÜHRERS]`
 - `[REGISTERGERICHT]`
 - `HRB [NUMMER]`
-- `www.example.invalid` in Canonical- und Open-Graph-Metadaten, `robots.txt` und `sitemap.xml`
 - `[KONFIGURIERTE SPEICHERDAUER UND LOG-EINSTELLUNGEN IN KONSOLEH PRÜFEN UND HIER EINTRAGEN]`
 - `[NACH FESTSTEHEN DES FIRMENSITZES ZUSTÄNDIGE DATENSCHUTZ-AUFSICHTSBEHÖRDE EINTRAGEN]`
 - `[ANGABE NACH § 36 VSBG: ...]` nach Prüfung von Beschäftigtenzahl, Teilnahmebereitschaft und einer möglichen gesetzlichen Verpflichtung

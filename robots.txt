@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
 
-# TODO: Vor Veröffentlichung example.invalid durch die finale Domain ersetzen.
-Sitemap: https://www.example.invalid/sitemap.xml
+Sitemap: https://php-investment.de/sitemap.xml
