@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- TODO: Vor Veröffentlichung example.invalid durch die finale Domain ersetzen. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.example.invalid/</loc>
+    <lastmod>2026-08-30</lastmod>
+  </url>
+  <url>
+    <loc>https://www.example.invalid/impressum.html</loc>
+    <lastmod>2026-08-30</lastmod>
+  </url>
+  <url>
+    <loc>https://www.example.invalid/datenschutz.html</loc>
+    <lastmod>2026-08-30</lastmod>
+  </url>
+</urlset>
