@@ -1,0 +1,92 @@
+name: Deploy to Hetzner
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check site structure and internal links
+        run: python3 scripts/check_site.py
+
+      - name: Check publication data
+        run: python3 scripts/check_deploy_ready.py
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ vars.PRODUCTION_URL }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install SFTP client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends lftp
+
+      - name: Prepare production files
+        run: |
+          mkdir -p .deploy
+          cp -R assets .deploy/assets
+          cp .htaccess .deploy/.htaccess
+          cp datenschutz.html favicon.svg impressum.html index.html robots.txt sitemap.xml .deploy/
+
+      - name: Configure SFTP host verification
+        env:
+          HETZNER_SFTP_KNOWN_HOSTS: ${{ secrets.HETZNER_SFTP_KNOWN_HOSTS }}
+        run: |
+          set -eu
+          : "${HETZNER_SFTP_KNOWN_HOSTS:?Missing production secret HETZNER_SFTP_KNOWN_HOSTS}"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s\n' "$HETZNER_SFTP_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Upload via SFTP
+        env:
+          HETZNER_SFTP_HOST: ${{ secrets.HETZNER_SFTP_HOST }}
+          HETZNER_SFTP_USER: ${{ secrets.HETZNER_SFTP_USER }}
+          LFTP_PASSWORD: ${{ secrets.HETZNER_SFTP_PASSWORD }}
+          HETZNER_REMOTE_DIR: ${{ vars.HETZNER_REMOTE_DIR }}
+        run: |
+          set -eu
+          : "${HETZNER_SFTP_HOST:?Missing production secret HETZNER_SFTP_HOST}"
+          : "${HETZNER_SFTP_USER:?Missing production secret HETZNER_SFTP_USER}"
+          : "${LFTP_PASSWORD:?Missing production secret HETZNER_SFTP_PASSWORD}"
+          remote_dir="${HETZNER_REMOTE_DIR:-/}"
+
+          lftp --norc --env-password --user "$HETZNER_SFTP_USER" -p 22 "sftp://$HETZNER_SFTP_HOST" <<LFTP
+          set cmd:fail-exit yes
+          set net:max-retries 2
+          set net:timeout 20
+          set sftp:auto-confirm no
+          mirror --reverse --verbose --parallel=2 --no-perms .deploy "$remote_dir"
+          bye
+          LFTP
+
+      - name: Verify production response
+        env:
+          PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+        run: |
+          set -eu
+          : "${PRODUCTION_URL:?Missing production variable PRODUCTION_URL}"
+          curl --fail --silent --show-error --location --retry 3 --max-time 30 "$PRODUCTION_URL" > /dev/null

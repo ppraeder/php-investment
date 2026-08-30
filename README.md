@@ -66,6 +66,56 @@ python3 scripts/check_site.py
 
 Hinweis: Die `.htaccess` setzt HSTS ohne `includeSubDomains`. HSTS wirkt nur über HTTPS, sollte aber dennoch erst zusammen mit einem korrekt eingerichteten und dauerhaft verfügbaren Zertifikat veröffentlicht werden. Falls eine Direktive im gewählten Hetzner-Tarif nicht erlaubt ist und einen HTTP-500-Fehler verursacht, den betroffenen optionalen Block nach Rücksprache mit dem Hosting-Support entfernen.
 
+## Hetzner- und GitHub-Actions-Setup
+
+Webhosting M unterstützt SFTP/FTPS, aber keinen interaktiven SSH-Login. Das Deployment verwendet deshalb SFTP auf Port 22. Der Workflow ist zunächst ausschließlich manuell startbar und löscht keine bereits vorhandenen Dateien auf dem Server.
+
+### 1. Hetzner vorbereiten
+
+1. In konsoleH das Webhosting-Paket und anschließend den Hosting-Namen auswählen.
+2. Unter `Einstellungen` → `Zugangsdaten` einen **zusätzlichen FTP-Benutzer** anlegen.
+3. Dessen Zugriff auf `public_html` beziehungsweise das ausschließlich für diese Website verwendete Unterverzeichnis begrenzen.
+4. Ein langes, zufälliges Passwort erzeugen und sicher verwahren. Nicht im Repository oder in einer lokalen Datei speichern.
+5. Servername, Benutzername und SFTP-Port 22 notieren.
+6. Die SFTP-Verbindung einmal lokal testen und den angezeigten Host-Fingerprint prüfen. Anschließend den bestätigten `known_hosts`-Eintrag für GitHub bereithalten.
+7. Domain auf das Zielverzeichnis zeigen lassen, Let's Encrypt aktivieren und HTTPS-Weiterleitung einschalten.
+
+Für einen zusätzlichen FTP-Benutzer, dessen Wurzel bereits das Website-Verzeichnis ist, lautet das Remote-Verzeichnis normalerweise `/`. Wird ausnahmsweise der Hauptbenutzer verwendet, muss der korrekte Pfad – häufig `/public_html` – vorher mit einem SFTP-Client geprüft werden. Der zusätzliche, eingeschränkte Benutzer ist zu bevorzugen.
+
+### 2. GitHub-Zugangsdaten anlegen
+
+Im GitHub-Repository unter `Settings` → `Secrets and variables` → `Actions` folgende **Repository Secrets** anlegen. Repository Secrets funktionieren auch bei privaten Repositories, bei denen Environment Secrets je nach GitHub-Tarif nicht verfügbar sind:
+
+| Name | Inhalt |
+| --- | --- |
+| `HETZNER_SFTP_HOST` | Hetzner-Server, z. B. `www123.your-server.de` |
+| `HETZNER_SFTP_USER` | zusätzlicher FTP-Benutzer |
+| `HETZNER_SFTP_PASSWORD` | Passwort dieses Benutzers |
+| `HETZNER_SFTP_KNOWN_HOSTS` | zuvor geprüfte vollständige `known_hosts`-Zeile für Port 22 |
+
+Unter `Variables` zusätzlich folgende Repository-Variablen anlegen:
+
+| Name | Inhalt |
+| --- | --- |
+| `HETZNER_REMOTE_DIR` | normalerweise `/` beim eingeschränkten zusätzlichen Benutzer |
+| `PRODUCTION_URL` | finale HTTPS-URL, z. B. `https://www.example.de/` |
+
+Optional kann unter `Settings` → `Environments` zusätzlich ein Environment namens `production` mit erlaubten Deployment-Branches oder manueller Freigabe eingerichtet werden. Welche Schutzregeln verfügbar sind, hängt vom GitHub-Tarif und der Sichtbarkeit des Repositories ab.
+
+### 3. Erstes Deployment
+
+Vor dem Deployment müssen alle sichtbaren Firmen-/Rechtsplatzhalter sowie `example.invalid` ersetzt sein. `scripts/check_deploy_ready.py` blockiert die Veröffentlichung andernfalls absichtlich.
+
+Danach auf GitHub unter `Actions` → `Deploy to Hetzner` → `Run workflow` starten. Der Workflow:
+
+1. prüft HTML-Struktur, interne Links und Veröffentlichungsbereitschaft,
+2. stellt ausschließlich die Produktionsdateien zusammen,
+3. prüft den hinterlegten SFTP-Hostschlüssel,
+4. lädt die Dateien verschlüsselt per SFTP hoch und
+5. prüft anschließend die konfigurierte Produktions-URL.
+
+Erst nach einem erfolgreichen manuellen Deployment sollte der Workflow optional um einen automatischen Trigger für Pushes auf `main` erweitert werden.
+
 ## Noch zu ersetzende Platzhalter
 
 - `[STRASSE UND HAUSNUMMER]`
