@@ -1,0 +1,7 @@
+{
+  "company_details": true,
+  "contact": true,
+  "hosting": true,
+  "log_retention": true,
+  "privacy": true
+}

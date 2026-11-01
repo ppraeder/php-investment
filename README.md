@@ -2,15 +2,17 @@
 
 Kleine, statische Unternehmenswebsite für die PHP-Investment GmbH. Die Website benötigt keinen Build-Schritt, kein JavaScript, keine Datenbank und keine externen Ressourcen. Sie ist für die direkte Bereitstellung auf Hetzner Webhosting M ausgelegt.
 
-Die gelb markierten Angaben auf der Website sind absichtliche Platzhalter. Sie müssen vor der Veröffentlichung ersetzt oder – sofern als optional gekennzeichnet – entfernt werden.
+Die Unternehmens-, Kontakt- und Hostingangaben wurden vom Unternehmen bestätigt. Der Deployment-Check prüft die eingecheckte `publication-confirmation.json` mit diesen Freigaben.
+
+Die Bestätigung dokumentiert die sachlichen Angaben und ersetzt keine abschließende rechtliche Prüfung der Website.
 
 ## Technische Entscheidungen
 
 - Reines HTML5 und CSS; kein Produktions-Runtime und kein Paketmanager
 - Keine Cookies, Analyse, Tracker, externen Schriftarten, CDNs oder Einbettungen
-- Kein Kontaktformular; Kontakt erfolgt nach Ergänzung der Daten über E-Mail bzw. Telefon
+- Kein Kontaktformular; Kontakt erfolgt über die angegebene E-Mail-Adresse
 - Restriktive Sicherheitsheader über `.htaccess`
-- Systemschriften und eine rein in CSS aufgebaute grafische Gestaltung
+- Systemschriften, ruhige Typografie und eine reduzierte Farbpalette ohne Bildmaterial
 - Kleine, dependency-freie Prüfungen für HTML-Grundstruktur und interne Links
 
 Diese bewusst einfache Architektur ist für den Umfang robuster und wartungsärmer als ein Framework, CMS oder PHP-Anwendung.
@@ -57,7 +59,7 @@ python3 scripts/check_site.py
 1. Finale Domain in der Hetzner-Verwaltung dem Webhosting-Paket zuordnen.
 2. HTTPS-Zertifikat (Let's Encrypt, soweit im gebuchten Produkt verfügbar) aktivieren und die HTTPS-Weiterleitung in den Hosting-Einstellungen einschalten.
 3. Prüfen, dass `php-investment.de` in `index.html`, `impressum.html`, `datenschutz.html`, `robots.txt` und `sitemap.xml` als Produktionsdomain eingetragen ist.
-4. Firmen- und Rechtsangaben vervollständigen; alle gelb markierten Platzhalter und `TODO`-Kommentare prüfen.
+4. `python3 scripts/check_deploy_ready.py` ausführen und die bestätigten Angaben vor dem Upload noch einmal gegen die Website prüfen.
 5. Die Produktionsdateien per SFTP/FTP in den konfigurierten Document Root hochladen: `index.html`, `impressum.html`, `datenschutz.html`, `assets/`, `favicon.svg`, `robots.txt`, `sitemap.xml` und `.htaccess`.
 6. Auf dem Zielsystem Startseite, interne Links, Impressum, Datenschutz und Darstellung auf Mobilgeräten testen.
 7. Mit den Browser-Entwicklerwerkzeugen prüfen, ob HTTPS aktiv ist, keine Mixed-Content-Fehler auftreten und die Security-Header ausgeliefert werden.
@@ -117,7 +119,7 @@ Optional kann unter `Settings` → `Environments` zusätzlich ein Environment na
 
 ### 3. Erstes Deployment
 
-Vor dem Deployment müssen alle sichtbaren Firmen-/Rechtsplatzhalter sowie `example.invalid` ersetzt sein. `scripts/check_deploy_ready.py` blockiert die Veröffentlichung andernfalls absichtlich.
+`scripts/check_deploy_ready.py` blockiert die Veröffentlichung, wenn die erforderliche `publication-confirmation.json` fehlt oder nicht alle Prüfbereiche bestätigt.
 
 Danach auf GitHub unter `Actions` → `Deploy to Hetzner` → `Run workflow` starten. Der Workflow:
 
@@ -129,27 +131,9 @@ Danach auf GitHub unter `Actions` → `Deploy to Hetzner` → `Run workflow` sta
 
 Erst nach einem erfolgreichen manuellen Deployment sollte der Workflow optional um einen automatischen Trigger für Pushes auf `main` erweitert werden.
 
-## Noch zu ersetzende Platzhalter
+## Bestätigte Veröffentlichungsangaben
 
-- `[STRASSE UND HAUSNUMMER]`
-- `[PLZ ORT]`
-- `[E-MAIL-ADRESSE]`
-- `[TELEFONNUMMER]` bzw. `[TELEFONNUMMER, FALLS VERÖFFENTLICHT]`; danach `tel:`-Link ergänzen oder optionalen Eintrag entfernen
-- `[VOLLSTÄNDIGER NAME DES GESCHÄFTSFÜHRERS]`
-- `[REGISTERGERICHT]`
-- `HRB [NUMMER]`
-- `[KONFIGURIERTE SPEICHERDAUER UND LOG-EINSTELLUNGEN IN KONSOLEH PRÜFEN UND HIER EINTRAGEN]`
-- `[NACH FESTSTEHEN DES FIRMENSITZES ZUSTÄNDIGE DATENSCHUTZ-AUFSICHTSBEHÖRDE EINTRAGEN]`
-- `[ANGABE NACH § 36 VSBG: ...]` nach Prüfung von Beschäftigtenzahl, Teilnahmebereitschaft und einer möglichen gesetzlichen Verpflichtung
-
-Zusätzlich in den Quelltext-Kommentaren zu prüfen:
-
-- Umsatzsteuer-Identifikationsnummer und/oder Wirtschafts-Identifikationsnummer, falls vorhanden
-- Datenschutzbeauftragter, falls bestellt oder gesetzlich erforderlich
-- Status als Gesellschaft in Abwicklung/Liquidation, falls zutreffend
-- zuständige Aufsichtsbehörde nur dann, wenn die konkret ausgeübte Tätigkeit einer behördlichen Zulassung unterliegt
-- `mailto:`- und `tel:`-Links nach Einsetzen echter Kontaktdaten
-- Auftragsverarbeitungsvereinbarung und tatsächliche Log-Konfiguration des Hetzner-Vertrags
+Name, Geschäftsführer, Anschrift, E-Mail-Adresse, USt-IdNr., W-IdNr., Hetzner Webhosting, sieben Tage Apache-Log-Aufbewahrung und der Verzicht auf Cookies, Tracking und externe Einbindungen wurden vom Unternehmen am 1. November 2026 bestätigt. Die beiden Steuerkennzeichen haben unterschiedliche Nummernstämme; das Unternehmen hat ausdrücklich bestätigt, dass beide Werte korrekt sind.
 
 ## Rechtliche Annahmen und berücksichtigte Vorschriften
 
@@ -174,20 +158,20 @@ Die bereitgestellten Rechtstexte sind keine Rechtsberatung und keine Garantie f�
 
 ## Vor Veröffentlichung prüfen
 
-- [ ] vollständige Firmenanschrift
-- [ ] Geschäftsführer
-- [ ] Registergericht
-- [ ] Handelsregisternummer
-- [ ] E-Mail-Adresse
+- [x] vollständige Firmenanschrift (vom Unternehmen bestätigt)
+- [x] Geschäftsführer (vom Unternehmen bestätigt)
+- [x] Registergericht (mit öffentlich auffindbaren Registerdaten abgeglichen)
+- [x] Handelsregisternummer (mit öffentlich auffindbaren Registerdaten abgeglichen)
+- [x] E-Mail-Adresse (vom Unternehmen bestätigt)
 - [ ] Telefonnummer, falls veröffentlicht
-- [ ] Umsatzsteuer-ID, falls vorhanden
+- [x] Umsatzsteuer-ID (vom Unternehmen bestätigt)
 - [ ] finale Domain
 - [ ] Datenschutzerklärung geprüft
 - [ ] Tätigkeit der GmbH auf regulatorische Besonderheiten geprüft
 - [ ] Impressum abschließend rechtlich geprüft
-- [ ] Wirtschafts-Identifikationsnummer, falls vorhanden
+- [x] Wirtschafts-Identifikationsnummer und USt-IdNr. vom Unternehmen ausdrücklich bestätigt
 - [ ] Pflichtangabe nach § 36 VSBG geprüft
-- [ ] tatsächliche Hetzner-Logeinstellungen und Aufbewahrungsdauer geprüft
-- [ ] zuständige Datenschutzaufsichtsbehörde ergänzt
+- [x] tatsächliche Hetzner-Logeinstellungen und Aufbewahrungsdauer (vom Unternehmen bestätigt)
+- [x] zuständige Datenschutzaufsichtsbehörde ergänzt
 - [ ] Auftragsverarbeitung mit Hetzner geprüft
 - [ ] HTTPS, Weiterleitung und Security-Header im Zielhosting getestet

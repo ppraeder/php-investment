@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Fail safely when publication placeholders are still present."""
+"""Require confirmed publication data and reject visible placeholders."""
 
 from pathlib import Path
+import json
 import sys
 
 
@@ -17,6 +18,22 @@ TEXT_FILES = [
 
 def main() -> int:
     errors: list[str] = []
+    approval_path = ROOT / "publication-confirmation.json"
+    if not approval_path.exists():
+        errors.append("publication-confirmation.json is missing; company and hosting data have not been approved")
+    else:
+        try:
+            approval = json.loads(approval_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            errors.append("publication-confirmation.json is not valid UTF-8 JSON")
+        else:
+            if not isinstance(approval, dict):
+                errors.append("publication-confirmation.json must contain a JSON object")
+            else:
+                required = ("company_details", "contact", "hosting", "log_retention", "privacy")
+                missing = [key for key in required if approval.get(key) is not True]
+                if missing:
+                    errors.append("publication-confirmation.json is missing approvals: " + ", ".join(missing))
     for path in TEXT_FILES:
         content = path.read_text(encoding="utf-8")
         if "example.invalid" in content:
